@@ -17,7 +17,7 @@ from urllib.request import Request, urlopen
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 OLLAMA_MODELS_URL = "http://localhost:11434/api/tags"
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 8080
 
 
@@ -101,7 +101,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
-    print(f"CORS Proxy started on http://{HOST}:{PORT}")
+    print(f"CORS Proxy started on http://localhost:{PORT}")
     print("   Forwards /ollama -> http://localhost:11434/api/generate")
     print("   Forwards /models -> http://localhost:11434/api/tags")
     print("   Stop with Ctrl+C")
