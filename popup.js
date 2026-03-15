@@ -53,11 +53,15 @@
     function setLoading(button, loading) {
         if (loading) {
             button.disabled = true;
-            button._origText = button.innerHTML;
-            button.innerHTML = '<span class="spinner"></span> Please wait…';
+            button._origText = button.textContent;
+            button.textContent = '';
+            const spinner = document.createElement('span');
+            spinner.className = 'spinner';
+            button.appendChild(spinner);
+            button.appendChild(document.createTextNode(' Please wait...'));
         } else {
             button.disabled = false;
-            if (button._origText) button.innerHTML = button._origText;
+            if (button._origText) button.textContent = button._origText;
         }
     }
 
@@ -167,10 +171,14 @@
         }
         
         // Clear and populate list
-        modelList.innerHTML = '';
-        
+        modelList.textContent = '';
+
         if (models.length === 0) {
-            modelList.innerHTML = '<p style="color: var(--text-muted); margin: 0;">No models available</p>';
+            const emptyText = document.createElement('p');
+            emptyText.style.color = 'var(--text-muted)';
+            emptyText.style.margin = '0';
+            emptyText.textContent = 'No models available';
+            modelList.appendChild(emptyText);
             return;
         }
         
@@ -422,14 +430,42 @@ Text: ${response.text}`;
     });
 
     function renderJobInfo(data) {
-        const html = `
-      <dt>Position</dt><dd>${escHtml(data.position || '—')}</dd>
-      <dt>Company</dt><dd>${escHtml(data.company || '—')}</dd>
-      <dt>Location</dt><dd>${escHtml(data.location || '—')}</dd>
-      <dt>Tasks</dt><dd><div class="tag-list">${(data.tasks || []).map(t => `<span class="tag">${escHtml(t)}</span>`).join('')}</div></dd>
-      <dt>Requirements</dt><dd><div class="tag-list">${(data.requirements || []).map(r => `<span class="tag">${escHtml(r)}</span>`).join('')}</div></dd>
-    `;
-        jobInfoContent.innerHTML = html;
+        jobInfoContent.textContent = '';
+
+        const addRow = (label, valueNode) => {
+            const dt = document.createElement('dt');
+            dt.textContent = label;
+            const dd = document.createElement('dd');
+            dd.appendChild(valueNode);
+            jobInfoContent.appendChild(dt);
+            jobInfoContent.appendChild(dd);
+        };
+
+        const textNode = (value) => document.createTextNode(value || '—');
+
+        addRow('Position', textNode(data.position));
+        addRow('Company', textNode(data.company));
+        addRow('Location', textNode(data.location));
+
+        const tasksContainer = document.createElement('div');
+        tasksContainer.className = 'tag-list';
+        (data.tasks || []).forEach((task) => {
+            const tag = document.createElement('span');
+            tag.className = 'tag';
+            tag.textContent = task;
+            tasksContainer.appendChild(tag);
+        });
+        addRow('Tasks', tasksContainer);
+
+        const requirementsContainer = document.createElement('div');
+        requirementsContainer.className = 'tag-list';
+        (data.requirements || []).forEach((requirement) => {
+            const tag = document.createElement('span');
+            tag.className = 'tag';
+            tag.textContent = requirement;
+            requirementsContainer.appendChild(tag);
+        });
+        addRow('Requirements', requirementsContainer);
     }
 
     function escHtml(str) {
@@ -594,43 +630,73 @@ Return ONLY valid Typst code. No markdown, no explanations, no backticks, no com
             const existingTable = appTableContainer.querySelector('.app-table-wrapper');
             if (existingTable) existingTable.remove();
 
-            const wrapper = document.createElement('div');
-            wrapper.className = 'app-table-wrapper';
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'app-table-wrapper';
 
-            const statusOptions = ['Open', 'Applied', 'Interview', 'Rejected', 'Accepted'];
+                        const statusOptions = ['Open', 'Applied', 'Interview', 'Rejected', 'Accepted'];
+                        const table = document.createElement('table');
+                        table.className = 'app-table';
 
-            let tableHtml = `
-        <table class="app-table">
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>Company</th>
-              <th>Link</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+                        const thead = document.createElement('thead');
+                        const headerRow = document.createElement('tr');
+                        ['Position', 'Company', 'Link', 'Date', 'Status'].forEach((header) => {
+                                const th = document.createElement('th');
+                                th.textContent = header;
+                                headerRow.appendChild(th);
+                        });
+                        thead.appendChild(headerRow);
+                        table.appendChild(thead);
 
-            apps.forEach((app, index) => {
-                const optionsHtml = statusOptions.map(s =>
-                    `<option value="${s}" ${s === app.status ? 'selected' : ''}>${s}</option>`
-                ).join('');
+                        const tbody = document.createElement('tbody');
 
-                tableHtml += `
-          <tr>
-            <td title="${escHtml(app.position)}">${escHtml(app.position)}</td>
-            <td title="${escHtml(app.company)}">${escHtml(app.company)}</td>
-            <td>${app.link ? `<a href="${escHtml(app.link)}" target="_blank" title="${escHtml(app.link)}">🔗 Open</a>` : '—'}</td>
-            <td>${escHtml(app.date)}</td>
-            <td><select data-index="${index}">${optionsHtml}</select></td>
-          </tr>
-        `;
-            });
+                        apps.forEach((app, index) => {
+                                const tr = document.createElement('tr');
 
-            tableHtml += '</tbody></table>';
-            wrapper.innerHTML = tableHtml;
+                                const positionTd = document.createElement('td');
+                                positionTd.title = app.position || '—';
+                                positionTd.textContent = app.position || '—';
+                                tr.appendChild(positionTd);
+
+                                const companyTd = document.createElement('td');
+                                companyTd.title = app.company || '—';
+                                companyTd.textContent = app.company || '—';
+                                tr.appendChild(companyTd);
+
+                                const linkTd = document.createElement('td');
+                                if (app.link) {
+                                        const link = document.createElement('a');
+                                        link.href = app.link;
+                                        link.target = '_blank';
+                                        link.title = app.link;
+                                        link.textContent = '🔗 Open';
+                                        linkTd.appendChild(link);
+                                } else {
+                                        linkTd.textContent = '—';
+                                }
+                                tr.appendChild(linkTd);
+
+                                const dateTd = document.createElement('td');
+                                dateTd.textContent = app.date || '—';
+                                tr.appendChild(dateTd);
+
+                                const statusTd = document.createElement('td');
+                                const select = document.createElement('select');
+                                select.dataset.index = String(index);
+                                statusOptions.forEach((status) => {
+                                        const option = document.createElement('option');
+                                        option.value = status;
+                                        option.textContent = status;
+                                        option.selected = status === app.status;
+                                        select.appendChild(option);
+                                });
+                                statusTd.appendChild(select);
+                                tr.appendChild(statusTd);
+
+                                tbody.appendChild(tr);
+                        });
+
+                        table.appendChild(tbody);
+                        wrapper.appendChild(table);
             appTableContainer.appendChild(wrapper);
 
             // Status change handlers
