@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Apply Assistant</title>
+  <style>
+    /* ===== CSS RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0f0f14;
+      --bg-secondary: #1a1a24;
+      --bg-tertiary: #24243a;
+      --bg-card: #1e1e30;
+      --text-primary: #eaeaf0;
+      --text-secondary: #a0a0b8;
+      --text-muted: #6e6e88;
+      --accent: #7c5cfc;
+      --accent-hover: #9a7dff;
+      --accent-glow: rgba(124, 92, 252, 0.25);
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --info: #60a5fa;
+      --border: #2a2a40;
+      --border-focus: #7c5cfc;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --transition: 0.2s ease;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      width: 520px;
+      min-height: 400px;
+      max-height: 600px;
+      font-family: var(--font);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-y: auto;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header h1 .icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+    }
+
+    .header p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      padding-left: 36px;
+    }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 64px;
+      z-index: 99;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 8px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color var(--transition), border-color var(--transition);
+      border-bottom: 2px solid transparent;
+      font-family: var(--font);
+    }
+
+    .tab-btn:hover { color: var(--text-secondary); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ===== TAB CONTENT ===== */
+    .tab-content { display: none; padding: 16px 20px; }
+    .tab-content.active { display: block; }
+
+    /* ===== SECTION ===== */
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #0f0f14;
+    }
+
+    .btn-success:hover {
+      filter: brightness(1.1);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    /* ===== INPUTS ===== */
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font);
+      font-size: 12px;
+      transition: border-color var(--transition);
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .form-group {
+      margin-bottom: 10px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    /* ===== TOGGLE ===== */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .toggle-label.active { color: var(--accent); font-weight: 700; }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--accent);
+      border-radius: 12px;
+      transition: background var(--transition);
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform var(--transition);
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--success);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    /* ===== STATUS / FEEDBACK ===== */
+    .status-bar {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      margin-bottom: 10px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .status-bar.visible { display: flex; }
+    .status-bar.info { background: rgba(96, 165, 250, 0.12); color: var(--info); border: 1px solid rgba(96, 165, 250, 0.2); }
+    .status-bar.success { background: rgba(52, 211, 153, 0.12); color: var(--success); border: 1px solid rgba(52, 211, 153, 0.2); }
+    .status-bar.error { background: rgba(248, 113, 113, 0.12); color: var(--danger); border: 1px solid rgba(248, 113, 113, 0.2); }
+    .status-bar.warning { background: rgba(251, 191, 36, 0.12); color: var(--warning); border: 1px solid rgba(251, 191, 36, 0.2); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== JOB INFO CARD ===== */
+    .job-info {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+      font-size: 12px;
+    }
+
+    .job-info dt {
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .job-info dd {
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+
+    .job-info .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      background: var(--bg-tertiary);
+      border-radius: 20px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* ===== SPINNER ===== */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== TABLE ===== */
+    .app-table-wrapper {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    .app-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .app-table th {
+      background: var(--bg-tertiary);
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .app-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .app-table tr:last-child td { border-bottom: none; }
+
+    .app-table tr:hover td { background: rgba(124, 92, 252, 0.05); }
+
+    .app-table a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 11px;
+    }
+
+    .app-table a:hover { text-decoration: underline; }
+
+    .app-table select {
+      padding: 4px 8px;
+      font-size: 10px;
+      min-width: 90px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .empty-state .empty-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    /* ===== PROFILE TEXTAREA ===== */
+    #profileEditor {
+      min-height: 200px;
+      font-size: 11px;
+    }
+
+    /* ===== TYPST OUTPUT ===== */
+    #typstOutput {
+      min-height: 150px;
+      font-size: 11px;
+    }
+
+    /* ===== PAGE INFO ===== */
+    .page-info {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .page-info .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      flex-shrink: 0;
+    }
+
+    .page-info span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ===== HELPER ===== */
+    .mt-8 { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1><span class="icon">💼</span> Job Apply Assistant</h1>
+    <p>AI-powered application assistance</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="assistant">🚀 Assistant</button>
+    <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+    <button class="tab-btn" data-tab="applications">📋 Applications</button>
+  </div>
+
+  <!-- ////////  TAB 1: ASSISTANT  //////// -->
+  <div id="tab-assistant" class="tab-content active">
+
+    <!-- Status Bar -->
+    <div id="statusBar" class="status-bar"></div>
+
+    <!-- Page Info -->
+    <div id="pageInfo" class="page-info hidden">
+      <span class="dot"></span>
+      <span id="pageTitle">—</span>
+    </div>
+
+    <!-- Step 1: Analyze -->
+    <div class="section">
+      <div class="section-title">Step 1 — Analyze Job Posting</div>
+      <button id="btnAnalyze" class="btn btn-primary btn-full">
+        🔍 Analyze Job Posting
+      </button>
+      <div id="jobInfoCard" class="mt-8 hidden">
+        <dl class="job-info" id="jobInfoContent"></dl>
+      </div>
+    </div>
+
+    <!-- Step 2: Generate Cover Letter -->
+    <div class="section">
+      <div class="section-title">Step 2 — Generate Cover Letter</div>
+      <button id="btnGenerate" class="btn btn-primary btn-full" disabled>
+        ✍️ Generate Cover Letter
+      </button>
+      <div id="typstSection" class="mt-8 hidden">
+        <label class="form-label">Typst Code (editable)</label>
+        <textarea id="typstOutput" rows="10"></textarea>
+        <div class="btn-group mt-8">
+          <button id="btnCopy" class="btn btn-secondary">📋 Copy</button>
+          <button id="btnDownload" class="btn btn-success">⬇️ Download .typ</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ////////  TAB 2: SETTINGS  //////// -->
+  <div id="tab-settings" class="tab-content">
+
+    <!-- AI Mode -->
+    <div class="section">
+      <div class="section-title">AI Mode</div>
+      <div class="toggle-container">
+        <span id="labelGemini" class="toggle-label active">Gemini</span>
+        <label class="toggle">
+          <input type="checkbox" id="toggleAiMode">
+          <span class="toggle-slider"></span>
+        </label>
+        <span id="labelOllama" class="toggle-label">Ollama</span>
+      </div>
+
+      <!-- Gemini Settings -->
+      <div id="geminiSettings">
+        <div class="form-group">
+          <label class="form-label" for="apiKey">Gemini API Key</label>
+          <input type="password" id="apiKey" placeholder="AIza…">
+        </div>
+      </div>
+
+      <!-- Ollama Settings -->
+      <div id="ollamaSettings" class="hidden">
+        <div class="form-group">
+          <label class="form-label" for="ollamaModel">Ollama Model</label>
+          <input type="text" id="ollamaModel" placeholder="llama3">
+        </div>
+        <div class="status-bar warning visible" style="display:flex;">
+          ⚠️ Ollama might require a local Go proxy on port 8080 (CORS).
+        </div>
+      </div>
+
+      <button id="btnSaveSettings" class="btn btn-primary mt-8">💾 Save Settings</button>
+    </div>
+
+    <!-- Profile Editor -->
+    <div class="section">
+      <div class="section-title">Candidate Profile</div>
+      <textarea id="profileEditor" rows="12"></textarea>
+      <button id="btnSaveProfile" class="btn btn-primary mt-8">💾 Save Profile</button>
+    </div>
+
+  </div>
+
+  <!-- ////////  TAB 3: APPLICATIONS  //////// -->
+  <div id="tab-applications" class="tab-content">
+
+    <div class="section">
+      <div class="section-title">Application Overview</div>
+      <div id="appTableContainer">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">📭</div>
+          No applications saved yet.
+        </div>
+      </div>
+      <div class="btn-group mt-12">
+        <button id="btnExportCsv" class="btn btn-secondary">📥 CSV Export</button>
+        <button id="btnClearApps" class="btn btn-secondary" style="color: var(--danger);">🗑️ Delete All</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
