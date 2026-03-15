@@ -29,6 +29,8 @@
     const ollamaSettings = $('#ollamaSettings');
     const apiKeyInput = $('#apiKey');
     const ollamaModelInput = $('#ollamaModel');
+    const proxyLaunchCommandInput = $('#proxyLaunchCommand');
+    const btnCopyProxyCommand = $('#btnCopyProxyCommand');
     const btnSaveSettings = $('#btnSaveSettings');
     const profileEditor = $('#profileEditor');
     const btnSaveProfile = $('#btnSaveProfile');
@@ -111,8 +113,32 @@
         ollamaSettings.classList.toggle('hidden', !isOllama);
         
         if (isOllama) {
+            setProxyLaunchCommand();
             loadAvailableModels();
         }
+    }
+
+    function setProxyLaunchCommand() {
+        if (!proxyLaunchCommandInput) return;
+        const cmd = 'curl -fsSL https://raw.githubusercontent.com/shakha/job-apply-assistant/main/proxy/bootstrap-proxy.sh | bash';
+        proxyLaunchCommandInput.value = cmd;
+    }
+
+    if (btnCopyProxyCommand) {
+        btnCopyProxyCommand.addEventListener('click', async () => {
+            const command = proxyLaunchCommandInput?.value?.trim();
+            if (!command) {
+                showStatus('Proxy launcher command is unavailable.', 'warning');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(command);
+                showStatus('Launcher command copied to clipboard.', 'success');
+            } catch (err) {
+                showStatus('Could not copy command automatically. Please copy manually.', 'warning');
+            }
+        });
     }
 
     async function loadAvailableModels() {
@@ -754,6 +780,7 @@ Return ONLY valid Typst code. No markdown, no explanations, no backticks, no com
     });
 
     // ─── Init ───
+    setProxyLaunchCommand();
     loadSettings();
 
 })();

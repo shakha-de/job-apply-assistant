@@ -564,7 +564,17 @@
           <input type="text" id="ollamaModel" placeholder="llama3">
         </div>
         <div class="status-bar warning visible" style="display:flex;">
-          ⚠️ Ollama might require a local Go proxy on port 8080 (CORS).
+          ⚠️ Ollama may require a local proxy on port 8080 (CORS).
+        </div>
+        <div class="form-group mt-8">
+          <label class="form-label" for="proxyLaunchCommand">One-command proxy launcher</label>
+          <input type="text" id="proxyLaunchCommand" readonly>
+          <div class="btn-group mt-8">
+            <button id="btnCopyProxyCommand" class="btn btn-secondary">📋 Copy Launcher Command</button>
+          </div>
+          <p style="margin-top:6px; font-size:11px; color:var(--text-muted);">
+            Paste this in your terminal to start the local proxy automatically.
+          </p>
         </div>
       </div>
 

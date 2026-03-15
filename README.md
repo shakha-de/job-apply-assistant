@@ -40,21 +40,60 @@ AI-powered Chrome Extension (Manifest V3) that analyzes job postings and generat
 
 ---
 
-## Go Proxy for Ollama (CORS)
+## Local Proxy for Ollama (CORS)
 
-Chrome Extensions cannot directly access `localhost:11434` due to CORS restrictions. The included Go proxy solves this problem.
+Chrome Extensions cannot directly access `localhost:11434` due to CORS restrictions. This project includes local proxy options for that.
 
-### Requirements
-- [Go](https://go.dev/dl/) installed (≥ 1.21)
+### Endpoints
+- `POST /ollama` -> `http://localhost:11434/api/generate`
+- `GET /models` -> `http://localhost:11434/api/tags`
 
-### Start
+### Option A: Auto-detect runtime (recommended)
+
+```bash
+cd proxy
+./start-proxy.sh
+```
+
+Runtime priority:
+- Go first (if installed)
+- Python fallback (`python3`, then `python`)
+
+### Option B: Run Go proxy directly
+
+Requirements:
+- [Go](https://go.dev/dl/) installed (>= 1.21)
 
 ```bash
 cd proxy
 go run main.go
 ```
 
-The proxy runs on `http://localhost:8080` and forwards requests to Ollama.
+### Option C: Run Python proxy directly
+
+Requirements:
+- Python 3.x
+
+```bash
+cd proxy
+python3 main.py
+```
+
+### One-command launcher (curl)
+
+After publishing this repository, users can launch with one command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/<owner>/job-apply-assistant/main/proxy/bootstrap-proxy.sh | bash
+```
+
+Custom port:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/<owner>/job-apply-assistant/main/proxy/bootstrap-proxy.sh | PORT=9090 bash
+```
+
+The proxy listens on `http://localhost:8080` by default.
 
 ---
 
@@ -79,7 +118,10 @@ job-apply-assistant/
 ├── content.js         # Content Script (Text Extraction)
 ├── background.js      # Service Worker
 ├── proxy/
-│   └── main.go        # Go CORS proxy for Ollama
+│   ├── main.go            # Go CORS proxy for Ollama
+│   ├── main.py            # Python CORS proxy for Ollama
+│   ├── start-proxy.sh     # Auto-detect launcher (Go priority)
+│   └── bootstrap-proxy.sh # One-command curl launcher
 └── README.md
 ```
 
@@ -94,7 +136,7 @@ job-apply-assistant/
 | AI (online)| Google Gemini 2.0 Flash   |
 | AI (local) | Ollama (any model)        |
 | Output     | Typst (.typ)              |
-| Proxy      | Go net/http               |
+| Proxy      | Go net/http + Python stdlib |
 
 ---
 
